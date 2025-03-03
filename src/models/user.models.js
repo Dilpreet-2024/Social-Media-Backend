@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import validator from 'validator'
 const userSchema=new mongoose.Schema({
     userName:{
         type:String,
-        required:true,
+        required:[true,"username is a required field"],
         unique:true,
         lowercase:true,
         index:true,
@@ -15,24 +16,44 @@ const userSchema=new mongoose.Schema({
         required:true,
         unique:true,
         lowercase:true,
-        trim:true
+        trim:true,
+        validate:[validator.isEmail,"Invalid email format"]
     },
     fullName:{
         type:String,
-        required:true,
+        required:[true,"fullname is a required field"],
         trim:true,
         index:true
     },
     avatar:{
         type:String,//cloudinary url
-        required:true
+        required:[true,"Avatar is a required field"],
+        validate:[validator.isURL,"Invalid avatar URL"]
     },
     coverImage:{
-        type:String//cloudinary url
+        type:String,//cloudinary url
+        validate:[validator.isURL,"Invalid Cover Image URL"]
     },
     password:{
         type:String,
-        required:[true,"password is required"]
+        required:[true,"password is required"],
+        minlength:[6,"Password must be atleast 6 characters long"]
+        /*
+password: {
+    type: String,
+    required: [true, "Password is required"],
+    validate: [
+        (value) => validator.isStrongPassword(value, {
+            minLength: 6,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 1
+        }),
+        "Password must have at least 6 characters, 1 uppercase, 1 number, and 1 special character"
+    ]
+}
+        */
     },
     refreshToken:{
         type:String,
