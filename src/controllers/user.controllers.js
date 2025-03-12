@@ -179,19 +179,30 @@ catch(err)
     throw new ApiError(401,err?.message||"Invalid Refresh Token");
 }
  })
- export const changeCurrentPassword=asyncHandler(async(req,res)=>{
-    const {oldPassword,newPassword}=req.body;
-    const user=await User.findById(req.user?._id);
-    const correctPassword=await user.isPasswordCorrect(oldPassword);
-    if(!correctPassword)
+ export const changepassword=asyncHandler(async(req,res)=>{
+    try{
+    const {oldpassword,newpassword}=req.body;
+    if(!oldpassword||!newpassword)
     {
-        throw new ApiError(400,"Invalid old Password");
+        throw new ApiError(400,"Required fields are empty");
     }
-    user.password=newPassword;
+    const user=await User.findById(req.user?._id);
+    const cpass=await user.isPasswordCorrect(oldpassword);
+    if(!cpass)
+    {
+        throw new ApiError(400,"Invalid password");
+    }
+    user.password=newpassword;
     await user.save({validateBeforeSave:false});
-    return res.status(200).
-    json(new ApiResponse(200,{},"Password changed successfully"))
-
+    return res.status(200)
+    .json(
+        new ApiResponse(200,"Password changed successfully")
+    )
+}
+catch(err)
+{
+    throw new ApiError(500,err?.message);
+}
  })
  export const getCurrentuser=asyncHandler(async(req,res)=>{
     return res.status(200)
