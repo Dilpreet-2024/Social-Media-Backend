@@ -7,8 +7,6 @@ cloudinary.config({
 });
 export const uploadOnCloudinary=async (localfilepath)=>{
     try {
-        
-    
     if(!localfilepath)
     {
         return null;

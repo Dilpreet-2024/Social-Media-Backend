@@ -4,7 +4,8 @@ import {loginUser} from '../controllers/user.controllers.js'
 import { upload } from '../middlewares/multer.middleware.js';
 import {logoutUser} from '../controllers/user.controllers.js'
 import {verifyJWT} from '../middlewares/auth.middlwares.js'
-import {refreshAccessToken} from '../controllers/user.controllers.js'
+import {refreshAccessToken,updateUserAvatar,updateCoverImage,getUserChannelProfile} from '../controllers/user.controllers.js'
+import { changeCurrentPassword ,getCurrentuser,updateAccountDetails} from '../controllers/user.controllers.js';
 const router=Router();
 router.route('/register').post(
     upload.fields([
@@ -21,5 +22,11 @@ maxCount:1
     router.route("/login").post(loginUser);
     //secured routes
     router.route("/logout").post(verifyJWT,logoutUser);
-    router.route("/refresh-token").post(refreshAccessToken)
+    router.route("/refreshtoken").post(refreshAccessToken)
+    router.route("/changepassword").post(verifyJWT,changeCurrentPassword);
+    router.route('/getcurrentuser').get(verifyJWT,getCurrentuser);
+    router.route('/update').post(verifyJWT,updateAccountDetails);
+    router.route('/updateavatar').post(upload.single('avatar'),verifyJWT,updateUserAvatar);
+    router.route('/updatecoverimage').post(upload.single('coverImage'),verifyJWT,updateCoverImage);
+    router.route('/subscriptions/:userName').post(verifyJWT,getUserChannelProfile);
 export default router;
