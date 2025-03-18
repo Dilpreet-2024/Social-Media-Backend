@@ -5,7 +5,7 @@ import { upload } from '../middlewares/multer.middleware.js';
 import {logoutUser} from '../controllers/user.controllers.js'
 import {verifyJWT} from '../middlewares/auth.middlwares.js'
 import {refreshAccessToken,updateUserAvatar,updateCoverImage,getUserChannelProfile} from '../controllers/user.controllers.js'
-import {getCurrentuser,updateAccountDetails,changepassword} from '../controllers/user.controllers.js';
+import {getCurrentuser,updateAccountDetails,changepassword,getWatchHistory} from '../controllers/user.controllers.js';
 const router=Router();
 router.route('/register').post(
     upload.fields([
@@ -25,8 +25,9 @@ maxCount:1
     router.route("/refreshtoken").post(refreshAccessToken)
     router.route("/changepassword").post(verifyJWT,changepassword);
     router.route('/getcurrentuser').get(verifyJWT,getCurrentuser);
-    router.route('/update').post(verifyJWT,updateAccountDetails);
-    router.route('/updateavatar').post(upload.single('avatar'),verifyJWT,updateUserAvatar);
-    router.route('/updatecoverimage').post(upload.single('coverImage'),verifyJWT,updateCoverImage);
-    router.route('/subscriptions/:userName').post(verifyJWT,getUserChannelProfile);
+    router.route('/update').patch(verifyJWT,updateAccountDetails);
+    router.route('/updateavatar').patch(verifyJWT,upload.single('avatar'),updateUserAvatar);
+    router.route('/updatecoverimage').patch(verifyJWT,upload.single('coverImage'),updateCoverImage);
+    router.route('/subscriptions/:userName').get(verifyJWT,getUserChannelProfile);
+    router.route('/history').get(verifyJWT,getWatchHistory);
 export default router;
