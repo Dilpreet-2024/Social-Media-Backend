@@ -29,11 +29,11 @@ isPublished:{
     type:Boolean,
     default:true
 },
-owner:[{
+owner:{
     
     type:mongoose.Schema.Types.ObjectId,
     ref:"User"
-}]
+}
 },{timestamps:true})
 videoSchema.plugin(mongooseAggregatePaginate)
 export const Video=mongoose.model("Video",videoSchema);
