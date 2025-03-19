@@ -16,5 +16,7 @@ app.get('/',(req,res)=>{
     res.send('Home Page')
 })
 import userRoute from './routes/user.routes.js'
-app.use('/api',userRoute)
+app.use('/user',userRoute)
+import videoRoute from './routes/video.routes.js'
+app.use('/video',videoRoute)
 export default app;

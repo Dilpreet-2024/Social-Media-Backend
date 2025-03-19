@@ -63,8 +63,8 @@ export const registerUser=asyncHandler(async(req,res)=>{
         userName:userName.toLowerCase(),
         email:email.toLowerCase(),
         fullName,
-        avatar,
-        coverImage:coverImage||"",
+        avatar:avatar.url,
+        coverImage:coverImage?.url||"",
         password
     });
     const createdUser=await User.findById(user._id).select("-password -refreshToken");
@@ -245,7 +245,7 @@ export const updateUserAvatar=asyncHandler(async(req,res)=>{
      const user=await User.findByIdAndUpdate(req.user?._id,
         {
             $set:{
-                avatar
+                avatar:avatar.url
             }
         },
         {
@@ -270,7 +270,7 @@ export const updateCoverImage=asyncHandler(async(req,res)=>{
         req.user?._id,
         {
             $set:{
-                coverImage
+                coverImage:coverImage.url
             }
         },
         {
