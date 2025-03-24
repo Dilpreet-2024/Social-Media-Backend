@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import {Video} from '../models/video.models.js'
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import mongoose from "mongoose";
+import { isValidObjectId } from "mongoose";
 export const publishAVideo=asyncHandler(async(req,res)=>{
     const {title,description}=req.body;
     if(!title||!description)
@@ -38,5 +38,23 @@ export const publishAVideo=asyncHandler(async(req,res)=>{
         duration:Math.round(videoFile.duration)
     })
 await video.save();
-return new ApiResponse(201,"Video published successfully",video);
+return res.status(201).json(
+    new ApiResponse(200,video,"Video uploaded successfully")
+)
+})
+export const getVideoById=asyncHandler(async(req,res)=>{
+    const {id}=req.params;
+    if(!isValidObjectId(id))
+    {
+        throw new ApiError(400,"Invalid video id");
+    }
+    const video=await Video.findById(id);
+    if(!video)
+    {
+        throw new ApiError(404,"Video not found");
+    }
+    return res.status(200).json(
+        new ApiResponse(200,video,"Video fetched successfully") 
+    )
+
 })
