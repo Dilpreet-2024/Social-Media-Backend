@@ -58,3 +58,46 @@ export const getVideoById=asyncHandler(async(req,res)=>{
     )
 
 })
+export const updateVideo=asyncHandler(async(req,res)=>{
+    const {id}=req.params;
+    const{title,description}=req.body;
+    if(!title||!description)
+    {
+        throw new ApiError(400,"Title and description are required");
+    }
+    if(!isValidObjectId(id))
+    {
+        throw new ApiError(400,"Invalid video id");
+    }
+    const videofilepath=req.files?.videoFile[0]?.path;
+    const thumbnailpath=req.files?.thumbnail[0]?.path;
+    if(!videofilepath)
+    {
+        throw new ApiError(400,"Failed to fetch video file path");
+    }
+    if(!thumbnailpath)
+    {
+        throw new ApiError(400,"Failed to fetch thumbnail path");
+    }
+    const videoFile=await uploadOnCloudinary(videofilepath);
+    if(!videoFile)
+    {
+        throw new ApiError(400,"Failed to upload video file on cloudinary");
+    }
+    const thumbnail=await uploadOnCloudinary(thumbnailpath);
+    if(!thumbnail)
+    {
+        throw new ApiError(400,"Failed to upload thumbnail on cloudinary");
+    }
+    const video=await Video.findByIdAndUpdate(id,
+        {title,description,videoFile:videoFile.url,thumbnail:thumbnail.url,duration:Math.round(videoFile.duration)},{new:true})
+        console.log(video);
+        if(!video)
+        {
+            throw new ApiError(404,"Video not found");
+        }
+        return res.status(200).json(
+            new ApiResponse(200,video,"Video updated successfully")
+        )
+        
+})
