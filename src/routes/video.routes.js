@@ -2,7 +2,7 @@ import { Router } from "express";
 import { upload } from "../middlewares/multer.middleware.js";
 const router=Router();
 import { verifyJWT } from "../middlewares/auth.middlwares.js";
-import { publishAVideo,getVideoById,updateVideo } from "../controllers/video.controllers.js";
+import { publishAVideo,getVideoById,updateVideo,deleteVideo} from "../controllers/video.controllers.js";
 router.route('/post').post(verifyJWT,upload.fields([
     {
         name:'videoFile',
@@ -24,4 +24,5 @@ router.route('/update/:id').post(verifyJWT,upload.fields([
         maxCount:1
     }
 ]),updateVideo);
+router.route('/delete/:id').delete(verifyJWT,deleteVideo);
 export default router;

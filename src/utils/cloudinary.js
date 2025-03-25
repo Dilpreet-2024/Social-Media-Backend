@@ -24,3 +24,11 @@ return null;
         
 }
 }
+export const deleteFromCloudinary = async (publicId, resourceType) => {
+    try {
+        await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+        console.log(`Deleted from Cloudinary: ${publicId}`);
+    } catch (error) {
+        console.error("Cloudinary deletion error:", error);
+    }
+};

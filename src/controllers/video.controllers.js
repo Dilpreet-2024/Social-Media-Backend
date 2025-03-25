@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import {Video} from '../models/video.models.js'
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { isValidObjectId } from "mongoose";
+import { deleteFromCloudinary } from "../utils/cloudinary.js";
 export const publishAVideo=asyncHandler(async(req,res)=>{
     const {title,description}=req.body;
     if(!title||!description)
@@ -91,7 +92,6 @@ export const updateVideo=asyncHandler(async(req,res)=>{
     }
     const video=await Video.findByIdAndUpdate(id,
         {title,description,videoFile:videoFile.url,thumbnail:thumbnail.url,duration:Math.round(videoFile.duration)},{new:true})
-        console.log(video);
         if(!video)
         {
             throw new ApiError(404,"Video not found");
@@ -100,4 +100,25 @@ export const updateVideo=asyncHandler(async(req,res)=>{
             new ApiResponse(200,video,"Video updated successfully")
         )
         
+})
+export const deleteVideo=asyncHandler(async(req,res)=>{
+    const {id}=req.params;
+    if(!isValidObjectId(id))
+    {
+        throw new ApiError(400,"Invalid video id");
+    }
+    const video=await Video.findById(id);
+    if(!video)
+    {
+        throw new ApiError(404,"Video not found");
+    }
+    const videoPublicId = video.videoFile.split("/").pop().split(".")[0];
+    const thumbnailPublicId = video.thumbnail.split("/").pop().split(".")[0];
+
+    // Delete video and thumbnail from Cloudinary
+    await deleteFromCloudinary(videoPublicId, "video");
+    await deleteFromCloudinary(thumbnailPublicId, "image");
+    await Video.findByIdAndDelete(id);
+    return res.status(200).json(new ApiResponse(200,"Video deleted successfully"))
+
 })
