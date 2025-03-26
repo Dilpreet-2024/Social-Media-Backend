@@ -11,6 +11,10 @@ export const publishAVideo=asyncHandler(async(req,res)=>{
     {
         throw new ApiError(400,"Required fields are empty");
     }
+    if(!req.user||!req.user._id)
+    {
+        throw new ApiError(401,"Unauthorized request");
+    }
     const videofilepath=req.files?.videoFile[0]?.path;
     const thumbnailpath=req.files?.thumbnail[0]?.path;
     if(!videofilepath)
@@ -36,7 +40,8 @@ export const publishAVideo=asyncHandler(async(req,res)=>{
         thumbnail:thumbnail.url,
         title,
         description,
-        duration:Math.round(videoFile.duration)
+        duration:Math.round(videoFile.duration),
+        owner:req.user._id
     })
 await video.save();
 return res.status(201).json(
@@ -70,6 +75,10 @@ export const updateVideo=asyncHandler(async(req,res)=>{
     {
         throw new ApiError(400,"Invalid video id");
     }
+    if(!req.user||!req.user._id)
+    {
+        throw new ApiError(400,"Unauthorized request");
+    }
     const videofilepath=req.files?.videoFile[0]?.path;
     const thumbnailpath=req.files?.thumbnail[0]?.path;
     if(!videofilepath)
@@ -91,7 +100,7 @@ export const updateVideo=asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Failed to upload thumbnail on cloudinary");
     }
     const video=await Video.findByIdAndUpdate(id,
-        {title,description,videoFile:videoFile.url,thumbnail:thumbnail.url,duration:Math.round(videoFile.duration)},{new:true})
+        {title,description,videoFile:videoFile.url,thumbnail:thumbnail.url,duration:Math.round(videoFile.duration),owner:req.user._id},{new:true})
         if(!video)
         {
             throw new ApiError(404,"Video not found");
@@ -121,4 +130,19 @@ export const deleteVideo=asyncHandler(async(req,res)=>{
     await Video.findByIdAndDelete(id);
     return res.status(200).json(new ApiResponse(200,"Video deleted successfully"))
 
+})
+export const togglePublishStatus=asyncHandler(async(req,res)=>{
+    const {id}=req.params;
+    if(!isValidObjectId(id))
+    {
+        throw new ApiError(400,"Invalid video id");
+    }
+    const video=await Video.findById(id);
+    if(!video)
+    {
+        throw new ApiError(404,"Video not found");
+    }
+    video.isPublished=!video.isPublished;
+    await video.save();
+    return res.status(200).json(new ApiResponse(200,video,"Publish status toggled sucessfully"));
 })
